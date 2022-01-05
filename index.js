@@ -133,15 +133,15 @@ document.body.appendChild(renderer.domElement)
 
 window.addEventListener("keydown", key => {
     if (key.keyCode === 39) {
-        for (let i = 0; i < 10; i++) {
-            car.position.x = car.position.x + 0.5
+        for (let i = 0; i < 20; i++) {
+            car.position.x = car.position.x + 0.1
             scene.add(car)
             renderer.render(scene, camara)
         }
     }
     if (key.keyCode === 37) {
-        for (let i = 0; i < 10; i++) {
-            car.position.x = car.position.x - 0.5
+        for (let i = 0; i < 20; i++) {
+            car.position.x = car.position.x - 0.1
             scene.add(car)
             renderer.render(scene, camara)
         }
