@@ -95,9 +95,13 @@ const playercar = () => {
     return car
 }
 
-scene.add(playercar())
+let car = playercar()
+
+scene.add(car)
 
 // lights
+
+scene.background = new THREE.Color( 0xfffff0 );
 
 scene.add(new THREE.AmbientLight(0xffffff, 0.6))
 
@@ -111,12 +115,14 @@ const cameraWidth = 850
 const cameraHight = cameraWidth / (window.innerWidth / window.innerHeight)
 
 const camara = new THREE.OrthographicCamera(cameraWidth / -2, cameraWidth / 2, cameraHight / 2, cameraHight / -2, 0, 1000)
-camara.position.set(0, 400, 300)
+camara.position.set(0, 200, 300)
 camara.lookAt(0, 0, 0)
+
+/* const camara = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0, 1000 ); */
 
 // floor
 
-scene.add(new THREE.Mesh(new THREE.PlaneBufferGeometry(cameraWidth, cameraHight + 5000), new THREE.MeshBasicMaterial( {color: 0xffff00, side: THREE.DoubleSide} )))
+/* scene.add(new THREE.Mesh(new THREE.PlaneBufferGeometry(cameraWidth, cameraHight + 2), new THREE.MeshBasicMaterial( {color: 0xffff00, side: THREE.DoubleSide} )))*/
 // renderer
 
 const renderer = new THREE.WebGLRenderer({ antialias: true })
@@ -124,3 +130,16 @@ renderer.setSize(window.innerWidth, window.innerHeight)
 renderer.render(scene, camara)
 
 document.body.appendChild(renderer.domElement)
+
+window.addEventListener("keydown", key => {
+    if (key.keyCode === 39) {
+        car.position.x = car.position.x + 1
+        scene.add(car)
+        renderer.render(scene, camara)
+    }
+    if (key.keyCode === 37) {
+        car.position.x = car.position.x - 1
+        scene.add(car)
+        renderer.render(scene, camara)
+    }
+});
