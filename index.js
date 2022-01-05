@@ -7,29 +7,29 @@ function getCarFrontTexture() {
     canvas.width = 64;
     canvas.height = 32;
     const context = canvas.getContext("2d");
-  
+
     context.fillStyle = "#ffffff";
     context.fillRect(0, 0, 64, 32);
-  
+
     context.fillStyle = "#666666";
     context.fillRect(8, 8, 48, 24);
-  
+
     return new THREE.CanvasTexture(canvas);
 }
-  
+
 function getCarSideTexture() {
     const canvas = document.createElement("canvas");
     canvas.width = 128;
     canvas.height = 32;
     const context = canvas.getContext("2d");
-  
+
     context.fillStyle = "#ffffff";
     context.fillRect(0, 0, 128, 32);
-  
+
     context.fillStyle = "#666666";
     context.fillRect(10, 8, 38, 24);
     context.fillRect(58, 8, 60, 24);
-  
+
     return new THREE.CanvasTexture(canvas);
 }
 
@@ -68,14 +68,14 @@ const playercar = () => {
     const carFrontTexture = getCarFrontTexture();
     carFrontTexture.center = new THREE.Vector2(0.5, 0.5);
     carFrontTexture.rotation = Math.PI / 2;
-  
+
     const carBackTexture = getCarFrontTexture();
     carBackTexture.center = new THREE.Vector2(0.5, 0.5);
     carBackTexture.rotation = -Math.PI / 2;
-  
+
     const carLeftSideTexture = getCarSideTexture();
     carLeftSideTexture.flipY = false;
-  
+
     const carRightSideTexture = getCarSideTexture();
 
     const cabin = new THREE.Mesh(new THREE.BoxBufferGeometry(26, 14, 20), [
@@ -101,7 +101,7 @@ scene.add(car)
 
 // lights
 
-scene.background = new THREE.Color( 0xfffff0 );
+scene.background = new THREE.Color(0xfffff0);
 
 scene.add(new THREE.AmbientLight(0xffffff, 0.6))
 
@@ -133,13 +133,17 @@ document.body.appendChild(renderer.domElement)
 
 window.addEventListener("keydown", key => {
     if (key.keyCode === 39) {
-        car.position.x = car.position.x + 1
-        scene.add(car)
-        renderer.render(scene, camara)
+        for (let i = 0; i < 10; i++) {
+            car.position.x = car.position.x + 0.5
+            scene.add(car)
+            renderer.render(scene, camara)
+        }
     }
     if (key.keyCode === 37) {
-        car.position.x = car.position.x - 1
-        scene.add(car)
-        renderer.render(scene, camara)
+        for (let i = 0; i < 10; i++) {
+            car.position.x = car.position.x - 0.5
+            scene.add(car)
+            renderer.render(scene, camara)
+        }
     }
 });
