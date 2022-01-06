@@ -1,5 +1,25 @@
 let scene = new THREE.Scene()
 
+// backround
+
+const topLeft = new THREE.Color(0x00fff0)
+const topRight = new THREE.Color(0xffff00)
+const bottomRight = new THREE.Color(0xfff000)
+const bottomLeft = new THREE.Color(0xff0000)
+
+const data = new Uint8Array([
+    Math.round(bottomLeft.r * 255), Math.round(bottomLeft.g * 255), Math.round(bottomLeft.b * 255),
+    Math.round(bottomRight.r * 255), Math.round(bottomRight.g * 255), Math.round(bottomRight.b * 255),
+    Math.round(topLeft.r * 255), Math.round(topLeft.g * 255), Math.round(topLeft.b * 255),
+    Math.round(topRight.r * 255), Math.round(topRight.g * 255), Math.round(topRight.b * 255)
+])
+
+const backgroundTexture = new THREE.DataTexture(data, 2, 2, THREE.RGBFormat)
+backgroundTexture.magFilter = THREE.LinearFilter
+backgroundTexture.needsUpdate = true
+
+scene.background = backgroundTexture
+
 // the car of player
 
 function getCarFrontTexture() {
@@ -101,45 +121,68 @@ scene.add(car)
 
 // lights
 
-scene.background = new THREE.Color(0xfffff0);
-
 scene.add(new THREE.AmbientLight(0xffffff, 0.6))
 
 const light = new THREE.DirectionalLight(0xffffff, 0.6)
 light.position.set(100, -300, 400)
 scene.add(light)
 
-// camara
+// camera
 
 const cameraWidth = 850
 const cameraHight = cameraWidth / (window.innerWidth / window.innerHeight)
 
-const camara = new THREE.OrthographicCamera(cameraWidth / -2, cameraWidth / 2, cameraHight / 2, cameraHight / -2, 0, 1000)
-camara.position.set(0, 200, 300)
-camara.lookAt(0, 0, 0)
+const camera = new THREE.OrthographicCamera(cameraWidth / -2, cameraWidth / 2, cameraHight / 2, cameraHight / -2, 0, 1000)
+camera.position.set(0, 400, 300)
+camera.lookAt(car.position.x, car.position.y, car.position.z)
+/* const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0, 1000 );
+camera.position.set(0, 200, 300)
+camera.lookAt(car.position.x, car.position.y, car.position.z) */
 
-/* const camara = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0, 1000 ); */
-
-// floor
-
-/* scene.add(new THREE.Mesh(new THREE.PlaneBufferGeometry(cameraWidth, cameraHight + 2), new THREE.MeshBasicMaterial( {color: 0xffff00, side: THREE.DoubleSide} )))*/
 // renderer
 
 const renderer = new THREE.WebGLRenderer({ antialias: true })
 renderer.setSize(window.innerWidth, window.innerHeight)
-renderer.render(scene, camara)
 
-document.body.appendChild(renderer.domElement)
+renderer.render(scene, camera)
+
+document.body.appendChild(renderer.domElement) 
+
+// making it resposive
+
+window.addEventListener("resize", () => {window.location.reload(true)})
+
+/* window.addEventListener('resize', () =>
+{
+    // Update sizes
+    window.innerWidth = window.innerWidth
+    window.innerHeight = window.innerHeight
+
+    // Update camera
+    camera.aspect = window.innerWidth / window.innerHeight
+    camera.updateProjectionMatrix()
+
+    // Update renderer
+    renderer.setSize(window.innerWidth, window.innerHeight)
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+}) */
+
+
+//car movment logic
+
+const target = car.position.clone()
 
 window.addEventListener("keydown", key => {
     if (key.keyCode === 39) {
-            car.position.x = car.position.x + 1
-            scene.add(car)
-            renderer.render(scene, camara)
+        target.x += 20
     }
     if (key.keyCode === 37) {
-            car.position.x = car.position.x - 1
-            scene.add(car)
-            renderer.render(scene, camara)
+        target.x -= 20
     }
 });
+
+renderer.setAnimationLoop(() => {
+    car.position.lerp(target, 0.1)
+
+    renderer.render(scene, camera)
+})
