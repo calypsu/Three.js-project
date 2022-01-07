@@ -136,8 +136,9 @@ const cameraWidth = 850
 const cameraHight = cameraWidth / (window.innerWidth / window.innerHeight)
 
 const camera = new THREE.OrthographicCamera(cameraWidth / -2, cameraWidth / 2, cameraHight / 2, cameraHight / -2, 0, 1000)
-camera.position.set(0, 400, 300)
+camera.position.set(0, 400, 500)
 camera.lookAt(car.position.x, car.position.y, car.position.z)
+
 /* const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0, 1000 );
 camera.position.set(0, 200, 300)
 camera.lookAt(car.position.x, car.position.y, car.position.z) */
@@ -147,9 +148,11 @@ camera.lookAt(car.position.x, car.position.y, car.position.z) */
 const renderer = new THREE.WebGLRenderer({ antialias: true })
 renderer.setSize(window.innerWidth, window.innerHeight)
 
-let controls = new OrbitControls( camera, renderer.domElement );
+/* let controls = new OrbitControls( camera, renderer.domElement );
 controls.enableZoom = true;
 controls.autoRotate = false
+
+controls.target.z = camera.position.z - 0.01; */
 
 renderer.render(scene, camera)
 
@@ -171,15 +174,31 @@ window.addEventListener("resize", () => {
 const target = [car.position.clone(), camera.position.clone()]
 
 window.addEventListener("keydown", key => {
-    if (key.keyCode === 39) {
+    if (key.keyCode === 40) {
         target[0].x += 20
         target[1].x = target[0].x
     }
-    if (key.keyCode === 37) {
+    /* else if (key.keyCode === 39) {
+
+    } */
+    else if (key.keyCode === 38) {
         target[0].x -= 20
         target[1].x = target[0].x
     }
 });
+
+// zoom
+
+window.addEventListener("wheel", wheel => {
+    if (wheel.deltaY < 0){
+        camera.zoom = camera.zoom + 0.1
+    }
+    if (wheel.deltaY > 0){
+        if (camera.zoom > 0.3){
+            camera.zoom = camera.zoom - 0.1
+        }
+    }
+})
 
 renderer.setAnimationLoop(() => {
     car.position.lerp(target[0], 0.1)
