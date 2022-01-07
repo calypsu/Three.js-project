@@ -1,3 +1,6 @@
+import * as THREE from 'https://cdn.skypack.dev/three@0.136.0';
+import { OrbitControls } from 'https://cdn.skypack.dev/three@0.136.0/examples/jsm/controls/OrbitControls';
+
 let scene = new THREE.Scene()
 
 // backround
@@ -20,7 +23,7 @@ backgroundTexture.needsUpdate = true
 
 scene.background = backgroundTexture
 
-// the car of player
+// car
 
 function getCarFrontTexture() {
     const canvas = document.createElement("canvas");
@@ -118,7 +121,7 @@ const playercar = () => {
 let car = playercar()
 
 scene.add(car)
-
+scene.add(new THREE.Mesh(new THREE.BoxBufferGeometry(10, 10, 10), new THREE.MeshLambertMaterial({ color: 0x333333 })))
 // lights
 
 scene.add(new THREE.AmbientLight(0xffffff, 0.6))
@@ -144,45 +147,44 @@ camera.lookAt(car.position.x, car.position.y, car.position.z) */
 const renderer = new THREE.WebGLRenderer({ antialias: true })
 renderer.setSize(window.innerWidth, window.innerHeight)
 
+let controls = new OrbitControls( camera, renderer.domElement );
+controls.enableZoom = true;
+controls.autoRotate = false
+
 renderer.render(scene, camera)
 
-document.body.appendChild(renderer.domElement) 
+document.body.appendChild(renderer.domElement)
 
 // making it resposive
 
-window.addEventListener("resize", () => {window.location.reload(true)})
+window.addEventListener("resize", () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
 
-/* window.addEventListener('resize', () =>
-{
-    // Update sizes
-    window.innerWidth = window.innerWidth
-    window.innerHeight = window.innerHeight
+    renderer.setSize(window.innerWidth, window.innerHeight);
 
-    // Update camera
-    camera.aspect = window.innerWidth / window.innerHeight
-    camera.updateProjectionMatrix()
-
-    // Update renderer
-    renderer.setSize(window.innerWidth, window.innerHeight)
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
-}) */
-
+    renderer.render(scene, camera);
+})
 
 //car movment logic
 
-const target = car.position.clone()
+const target = [car.position.clone(), camera.position.clone()]
 
 window.addEventListener("keydown", key => {
     if (key.keyCode === 39) {
-        target.x += 20
+        target[0].x += 20
+        target[1].x = target[0].x
     }
     if (key.keyCode === 37) {
-        target.x -= 20
+        target[0].x -= 20
+        target[1].x = target[0].x
     }
 });
 
 renderer.setAnimationLoop(() => {
-    car.position.lerp(target, 0.1)
+    car.position.lerp(target[0], 0.1)
+    camera.position.lerp(target[1], 0.1)
+    camera.updateProjectionMatrix();
 
     renderer.render(scene, camera)
 })
