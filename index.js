@@ -1,5 +1,4 @@
 import * as THREE from 'https://cdn.skypack.dev/three@0.136.0';
-import { OrbitControls } from 'https://cdn.skypack.dev/three@0.136.0/examples/jsm/controls/OrbitControls';
 
 let scene = new THREE.Scene()
 
@@ -122,6 +121,7 @@ let car = playercar()
 
 scene.add(car)
 scene.add(new THREE.Mesh(new THREE.BoxBufferGeometry(10, 10, 10), new THREE.MeshLambertMaterial({ color: 0x333333 })))
+
 // lights
 
 scene.add(new THREE.AmbientLight(0xffffff, 0.6))
@@ -132,27 +132,14 @@ scene.add(light)
 
 // camera
 
-const cameraWidth = 850
-const cameraHight = cameraWidth / (window.innerWidth / window.innerHeight)
-
-const camera = new THREE.OrthographicCamera(cameraWidth / -2, cameraWidth / 2, cameraHight / 2, cameraHight / -2, 0, 1000)
-camera.position.set(0, 400, 500)
-camera.lookAt(car.position.x, car.position.y, car.position.z)
-
-/* const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0, 1000 );
+const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 camera.position.set(0, 200, 300)
-camera.lookAt(car.position.x, car.position.y, car.position.z) */
+camera.lookAt(car.position.x, car.position.y, car.position.z)
 
 // renderer
 
 const renderer = new THREE.WebGLRenderer({ antialias: true })
 renderer.setSize(window.innerWidth, window.innerHeight)
-
-/* let controls = new OrbitControls( camera, renderer.domElement );
-controls.enableZoom = true;
-controls.autoRotate = false
-
-controls.target.z = camera.position.z - 0.01; */
 
 renderer.render(scene, camera)
 
@@ -165,45 +152,80 @@ window.addEventListener("resize", () => {
     camera.updateProjectionMatrix();
 
     renderer.setSize(window.innerWidth, window.innerHeight);
-
     renderer.render(scene, camera);
 })
 
 //car movment logic
 
+let pastTurningAngle = 0, currentTurningAngle = 0, lastTurn = null
+
 const target = [car.position.clone(), camera.position.clone()]
 
 window.addEventListener("keydown", key => {
-    if (key.keyCode === 40) {
+
+    if (key.keyCode === 38) {
+        target[0].x -= 20
+        target[1].x = target[0].x
+    }
+
+    else if (key.keyCode === 40) {
         target[0].x += 20
         target[1].x = target[0].x
     }
-    /* else if (key.keyCode === 39) {
 
-    } */
-    else if (key.keyCode === 38) {
-        target[0].x -= 20
-        target[1].x = target[0].x
+    else if (key.keyCode === 39) {
+
+        if (key.keyCode === 40) {
+            currentTurningAngle += 10
+            target[0].x += 20
+            target[1].x = target[0].x
+        }
+        if (key.keyCode === 38) {
+            currentTurningAngle -= 10
+            target[0].x -= 20
+            target[1].x = target[0].x
+        }
+    }
+
+    else if (key.keyCode === 37) {
+        
+        if (key.keyCode === 40) {
+            currentTurningAngle -= 10
+            target[0].x += 20
+            target[1].x = target[0].x
+        }
+        if (key.keyCode === 38) {
+            currentTurningAngle += 10
+            target[0].x -= 20
+            target[1].x = target[0].x
+        }
     }
 });
 
 // zoom
 
 window.addEventListener("wheel", wheel => {
-    if (wheel.deltaY < 0){
-        camera.zoom = camera.zoom + 0.1
+    if (wheel.deltaY < 0) {
+        camera.zoom = camera.zoom + 0.2
     }
-    if (wheel.deltaY > 0){
-        if (camera.zoom > 0.3){
-            camera.zoom = camera.zoom - 0.1
+    if (wheel.deltaY > 0) {
+        if (camera.zoom > 0.3) {
+            camera.zoom = camera.zoom - 0.2
         }
     }
 })
+
+// render loop
 
 renderer.setAnimationLoop(() => {
     car.position.lerp(target[0], 0.1)
     camera.position.lerp(target[1], 0.1)
     camera.updateProjectionMatrix();
+
+    if (pastTurningAngle !== currentTurningAngle) {
+        car.rotateZ(currentTurningAngle)
+        pastTurningAngle = currentTurningAngle
+    }
 
     renderer.render(scene, camera)
 })
