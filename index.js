@@ -157,50 +157,77 @@ window.addEventListener("resize", () => {
 
 //car movment logic
 
-let pastTurningAngle = 0, currentTurningAngle = 0, lastTurn = null
+let pastTurningAngle = 0, currentTurningAngle = 0, inTurning = false, H = 0, P, B
 
 const target = [car.position.clone(), camera.position.clone()]
 
 window.addEventListener("keydown", key => {
 
     if (key.keyCode === 38) {
-        target[0].x -= 20
-        target[1].x = target[0].x
+
+        if (!inTurning) {
+            target[0].x -= 20
+            target[1].x = target[0].x
+        }
+        else {
+            H -= 10
+        }
+
     }
 
     else if (key.keyCode === 40) {
-        target[0].x += 20
-        target[1].x = target[0].x
+
+        if (!inTurning) {
+            target[0].x += 20
+            target[1].x = target[0].x
+        }
+        else {
+            H += 10
+        }
+
     }
 
     else if (key.keyCode === 39) {
 
-        if (key.keyCode === 40) {
-            currentTurningAngle += 10
-            target[0].x += 20
-            target[1].x = target[0].x
+        if (!inTurning) {
+            inTurning = true
         }
-        if (key.keyCode === 38) {
-            currentTurningAngle -= 10
-            target[0].x -= 20
-            target[1].x = target[0].x
+
+        if (H !== 0) {
+            console.log(1)
+
+            currentTurningAngle += 0.1
+
+            P = H * Math.sin(currentTurningAngle)
+            B = H * Math.cos(currentTurningAngle)
+
+            target[0].x += B
+            target[0].y += P
+
         }
     }
 
     else if (key.keyCode === 37) {
-        
-        if (key.keyCode === 40) {
-            currentTurningAngle -= 10
-            target[0].x += 20
-            target[1].x = target[0].x
+
+        if (!inTurning) {
+            inTurning = true
         }
-        if (key.keyCode === 38) {
-            currentTurningAngle += 10
-            target[0].x -= 20
-            target[1].x = target[0].x
+
+        if (H !== 0) {
+            console.log(1)
+            currentTurningAngle -= 0.1
+
+            P = H * Math.sin(currentTurningAngle)
+            B = H * Math.cos(currentTurningAngle)
+
+            target[0].x += B
+            target[0].y += P
+
         }
     }
 });
+
+window.addEventListener("keyup", key => { if (key.keyCode === 39 || key.keyCode === 37) inTurning = false })
 
 // zoom
 
@@ -219,6 +246,7 @@ window.addEventListener("wheel", wheel => {
 
 renderer.setAnimationLoop(() => {
     car.position.lerp(target[0], 0.1)
+
     camera.position.lerp(target[1], 0.1)
     camera.updateProjectionMatrix();
 
