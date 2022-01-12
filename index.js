@@ -150,14 +150,16 @@ document.body.appendChild(renderer.domElement)
 window.addEventListener("resize", () => {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
-
+    
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.render(scene, camera);
 })
 
 //car movment logic
 
-let pastTurningAngle = 0, currentTurningAngle = 0, inTurning = false, H = 0, P, B
+let pastTurningAngle = 0, currentTurningAngle = 0, inTurning = false, H = 0/* , mock = new THREE.Object3D
+
+mock.quaternion.copy(car.quaternion) */
 
 const target = [car.position.clone(), camera.position.clone()]
 
@@ -170,7 +172,7 @@ window.addEventListener("keydown", key => {
             target[1].x = target[0].x
         }
         else {
-            H -= 10
+            H -= 1
         }
 
     }
@@ -182,7 +184,7 @@ window.addEventListener("keydown", key => {
             target[1].x = target[0].x
         }
         else {
-            H += 10
+            H += 1
         }
 
     }
@@ -196,13 +198,12 @@ window.addEventListener("keydown", key => {
         if (H !== 0) {
             console.log(1)
 
-            currentTurningAngle += 0.1
+            currentTurningAngle += 0.01
 
-            P = H * Math.sin(currentTurningAngle)
-            B = H * Math.cos(currentTurningAngle)
+            target[0].x += H * Math.cos(currentTurningAngle)
+            target[0].y += H * Math.sin(currentTurningAngle)
 
-            target[0].x += B
-            target[0].y += P
+            /* mock.rotateZ(currentTurningAngle) */
 
         }
     }
@@ -215,13 +216,12 @@ window.addEventListener("keydown", key => {
 
         if (H !== 0) {
             console.log(1)
-            currentTurningAngle -= 0.1
+            currentTurningAngle -= 0.01
 
-            P = H * Math.sin(currentTurningAngle)
-            B = H * Math.cos(currentTurningAngle)
+            target[0].x += H * Math.cos(currentTurningAngle)
+            target[0].y += H * Math.sin(currentTurningAngle)
 
-            target[0].x += B
-            target[0].y += P
+            /* mock.rotateZ(currentTurningAngle) */
 
         }
     }
@@ -246,14 +246,14 @@ window.addEventListener("wheel", wheel => {
 
 renderer.setAnimationLoop(() => {
     car.position.lerp(target[0], 0.1)
+    /* car.quaternion.slerp(mock, 0.01) */
 
     camera.position.lerp(target[1], 0.1)
-    camera.updateProjectionMatrix();
 
-    if (pastTurningAngle !== currentTurningAngle) {
+    /* if (pastTurningAngle !== currentTurningAngle) {
         car.rotateZ(currentTurningAngle)
         pastTurningAngle = currentTurningAngle
-    }
+    } */
 
     renderer.render(scene, camera)
 })
