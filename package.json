@@ -1,0 +1,31 @@
+{
+  "name": "3d-store",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "serve": "webpack-dev-server --port 2000 --hot"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/calypsu/Three.js-project.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/calypsu/Three.js-project/issues"
+  },
+  "homepage": "https://github.com/calypsu/Three.js-project#readme",
+  "dependencies": {
+    "@createjs/tweenjs": "^2.0.0-beta.4",
+    "html-webpack-plugin": "^5.5.0",
+    "three": "^0.136.0"
+  },
+  "devDependencies": {
+    "webpack": "^5.66.0",
+    "webpack-cli": "^4.9.1",
+    "webpack-dev-server": "^4.7.3"
+  }
+}
