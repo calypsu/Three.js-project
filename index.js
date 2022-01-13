@@ -186,8 +186,8 @@ window.addEventListener("keydown", key => {
 
     if (key.keyCode === 38) H = stdForward;
     else if (key.keyCode === 40) H = -1 * stdForward;
-    else if (key.keyCode === 39) (angleDiff = -1 * stdAngleDiff), (H = stdForward);
-    else if (key.keyCode === 37) (angleDiff = stdAngleDiff), (H = stdForward);
+    else if (key.keyCode === 37) (angleDiff = -1 * stdAngleDiff), (H = stdForward);
+    else if (key.keyCode === 39) (angleDiff = stdAngleDiff), (H = stdForward);
 
     angle = car.rotation.z + angleDiff;
 
