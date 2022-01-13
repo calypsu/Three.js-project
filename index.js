@@ -162,7 +162,7 @@ window.addEventListener("resize", () => {
 
 //car movment logic
 
-let TurningAngle = 0, inTurning = false, H = 0, PastH = 0
+let TurningAngle = 0, inTurning = false, H = 1
 
 const target = [car.position.clone(), camera.position.clone()]
 
@@ -176,7 +176,7 @@ window.addEventListener("keydown", key => {
         }
         else {
             console.log(2)
-            H -= 0.1
+            TurningAngle -= 0.1
         }
 
     }
@@ -189,7 +189,7 @@ window.addEventListener("keydown", key => {
         }
         else {
             console.log(2)
-            H += 0.1
+            TurningAngle += 0.1
         }
 
     }
@@ -200,14 +200,11 @@ window.addEventListener("keydown", key => {
             inTurning = true
         }
 
-        if (H !== 0 && PastH != H) {
+        if (H !== 0) {
             console.log(1)
-
-            TurningAngle += 0.1
 
             target[0].x += H * Math.cos(TurningAngle)
             target[0].y += H * Math.sin(TurningAngle)
-            PastH = H
 
         }
     }
@@ -220,11 +217,10 @@ window.addEventListener("keydown", key => {
 
         if (H !== 0) {
             console.log(1)
-            TurningAngle -= 0.1
 
             target[0].x += H * Math.cos(TurningAngle)
             target[0].y += H * Math.sin(TurningAngle)
-            PastH = H
+
         }
     }
 });
