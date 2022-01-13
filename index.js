@@ -120,7 +120,12 @@ const playercar = () => {
 let car = playercar()
 
 scene.add(car)
-scene.add(new THREE.Mesh(new THREE.BoxBufferGeometry(10, 10, 10), new THREE.MeshLambertMaterial({ color: 0x333333 })))
+
+let box = new THREE.Mesh(new THREE.BoxBufferGeometry(100, 100, 100), new THREE.MeshLambertMaterial({ color: 0x333333 }))
+box.position.x = 100
+box.position.y = -100
+
+scene.add(box)
 
 // lights
 
@@ -150,16 +155,14 @@ document.body.appendChild(renderer.domElement)
 window.addEventListener("resize", () => {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
-    
+
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.render(scene, camera);
 })
 
 //car movment logic
 
-let pastTurningAngle = 0, currentTurningAngle = 0, inTurning = false, H = 0/* , mock = new THREE.Object3D
-
-mock.quaternion.copy(car.quaternion) */
+let TurningAngle = 0, inTurning = false, H = 0, PastH = 0
 
 const target = [car.position.clone(), camera.position.clone()]
 
@@ -172,7 +175,8 @@ window.addEventListener("keydown", key => {
             target[1].x = target[0].x
         }
         else {
-            H -= 1
+            console.log(2)
+            H -= 0.1
         }
 
     }
@@ -184,7 +188,8 @@ window.addEventListener("keydown", key => {
             target[1].x = target[0].x
         }
         else {
-            H += 1
+            console.log(2)
+            H += 0.1
         }
 
     }
@@ -195,15 +200,14 @@ window.addEventListener("keydown", key => {
             inTurning = true
         }
 
-        if (H !== 0) {
+        if (H !== 0 && PastH != H) {
             console.log(1)
 
-            currentTurningAngle += 0.01
+            TurningAngle += 0.1
 
-            target[0].x += H * Math.cos(currentTurningAngle)
-            target[0].y += H * Math.sin(currentTurningAngle)
-
-            /* mock.rotateZ(currentTurningAngle) */
+            target[0].x += H * Math.cos(TurningAngle)
+            target[0].y += H * Math.sin(TurningAngle)
+            PastH = H
 
         }
     }
@@ -216,13 +220,11 @@ window.addEventListener("keydown", key => {
 
         if (H !== 0) {
             console.log(1)
-            currentTurningAngle -= 0.01
+            TurningAngle -= 0.1
 
-            target[0].x += H * Math.cos(currentTurningAngle)
-            target[0].y += H * Math.sin(currentTurningAngle)
-
-            /* mock.rotateZ(currentTurningAngle) */
-
+            target[0].x += H * Math.cos(TurningAngle)
+            target[0].y += H * Math.sin(TurningAngle)
+            PastH = H
         }
     }
 });
@@ -235,10 +237,8 @@ window.addEventListener("wheel", wheel => {
     if (wheel.deltaY < 0) {
         camera.zoom = camera.zoom + 0.2
     }
-    if (wheel.deltaY > 0) {
-        if (camera.zoom > 0.3) {
-            camera.zoom = camera.zoom - 0.2
-        }
+    if (wheel.deltaY > 0 && camera.zoom > 0.3) {
+        camera.zoom = camera.zoom - 0.2
     }
 })
 
@@ -246,14 +246,8 @@ window.addEventListener("wheel", wheel => {
 
 renderer.setAnimationLoop(() => {
     car.position.lerp(target[0], 0.1)
-    /* car.quaternion.slerp(mock, 0.01) */
 
     camera.position.lerp(target[1], 0.1)
-
-    /* if (pastTurningAngle !== currentTurningAngle) {
-        car.rotateZ(currentTurningAngle)
-        pastTurningAngle = currentTurningAngle
-    } */
 
     renderer.render(scene, camera)
 })
