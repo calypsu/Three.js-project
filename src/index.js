@@ -157,7 +157,7 @@ const camera = new THREE.PerspectiveCamera(
   0.1,
   1000
 );
-camera.position.set(0, -200, 300);
+camera.position.set(0, 200, 300);
 camera.lookAt(car.position.x, car.position.y, car.position.z);
 
 // renderer
@@ -193,7 +193,7 @@ const target = {
 };
 
 const stdAngleDiff = 0.1,
-  stdForward = 10;
+  stdForward = 30;
 
 let isUpKeyDown = false,
   isDownKeyDown = false,
@@ -201,17 +201,17 @@ let isUpKeyDown = false,
   isRightKeyDown = false;
 
 window.addEventListener("keydown", (key) => {
-  if (key.keyCode === 37) isLeftKeyDown = true;
+  if (key.keyCode === 37) isRightKeyDown = true;
   else if (key.keyCode === 38) isUpKeyDown = true;
-  else if (key.keyCode === 39) isRightKeyDown = true;
+  else if (key.keyCode === 39)  isLeftKeyDown = true;
   else if (key.keyCode === 40) isDownKeyDown = true;
 });
 
 window.addEventListener("keyup", (key) => {
-  if (key.keyCode === 37) isLeftKeyDown = false;
+  if (key.keyCode === 37) isRightKeyDown = false;
   else if (key.keyCode === 38) isUpKeyDown = false;
-  else if (key.keyCode === 39) isRightKeyDown = false;
-  else if (key.keyCode === 40) isDownKeyDown = false;
+  else if (key.keyCode === 39)  isLeftKeyDown = false;
+  else if (key.keyCode === 40) isDownKeyDown= false;
 });
 
 const calculateMovement = () => {
@@ -234,14 +234,17 @@ const calculateMovement = () => {
   target.car.position.y = finalPosition.y;
   target.car.rotation.z = angle;
   target.camera.position.x = finalPosition.x;
+  target.camera.position.y = finalPosition.y + 200
 
-  const transition = Ease.cubicInOut;
-  // const transition = undefined;
+  /* const transition = Ease.backInOut; */
 
-  Tween.get(car.position).to(target.car.position, 50, transition);
-  // Tween.get(car.rotation).to({ z: angle }, 200, transition);
-  car.rotation.z = angle;
-  camera.position.x = target.camera.position.x;
+  camera.position.lerp(target.camera.position, 0.1)
+  car.position.lerp(target.car.position, 0.1)
+  car.rotation.z += (angle - car.rotation.z) * 0.1
+
+  /* Tween.get(camera.position).to(target.camera.position, 0.1, transition);
+  Tween.get(car.position).to(target.car.position, 0.1, transition);
+  Tween.get(car.rotation).to({ z: angle }, 0.1, transition); */
 };
 
 // zoom
