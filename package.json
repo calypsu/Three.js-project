@@ -19,7 +19,7 @@
   },
   "homepage": "https://github.com/calypsu/Three.js-project#readme",
   "dependencies": {
-    "@createjs/tweenjs": "^2.0.0-beta.4",
+    "cannon": "^0.6.2",
     "html-webpack-plugin": "^5.5.0",
     "three": "^0.136.0"
   },

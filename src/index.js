@@ -1,9 +1,12 @@
 import * as THREE from "three";
-import { Ease, Tween } from "@createjs/tweenjs";
+import * as CANNON from "cannon";
 
+// THREE.js scene
 let scene = new THREE.Scene();
 
-console.log("Abhishek Challa");
+//Cannon.js world
+let world = new CANNON.World();
+world.gravity.set(0, -9.807, 0)
 
 // backround
 
@@ -66,80 +69,83 @@ function getCarSideTexture() {
   return new THREE.CanvasTexture(canvas);
 }
 
-const playercar = () => {
-  const car = new THREE.Group();
+const car = {
+  three: new THREE.Group(),
+  cannon: new CANNON.Body({ mass: 1 })
+}
+const backwheel = {
+  three: new THREE.Mesh(new THREE.BoxBufferGeometry(9, 23, 12), new THREE.MeshLambertMaterial({ color: 0x333333 })),
+  cannon: new CANNON.Box(new CANNON.Vec3(9 / 2, 23 / 2, 12 / 2))
+}
 
-  const backwheel = new THREE.Mesh(
-    new THREE.BoxBufferGeometry(9, 23, 12),
-    new THREE.MeshLambertMaterial({ color: 0x333333 })
-  );
+backwheel.three.position.z = 6;
+backwheel.three.position.x = -18;
 
-  backwheel.position.z = 6;
-  backwheel.position.x = -18;
+car.three.add(backwheel.three);
+car.cannon.addShape(backwheel.cannon, { x: -18, y: 0, z: 6 })
 
-  car.add(backwheel);
+const frontwheel = {
+  three: new THREE.Mesh(new THREE.BoxBufferGeometry(9, 23, 12), new THREE.MeshLambertMaterial({ color: 0x333333 })),
+  cannon: new CANNON.Box(new CANNON.Vec3(9 / 2, 23 / 2, 12 / 2))
+}
 
-  const frontwheel = new THREE.Mesh(
-    new THREE.BoxBufferGeometry(9, 23, 12),
-    new THREE.MeshLambertMaterial({ color: 0x333333 })
-  );
+frontwheel.three.position.z = 6;
+frontwheel.three.position.x = 18;
 
-  frontwheel.position.z = 6;
-  frontwheel.position.x = 18;
+car.three.add(frontwheel.three);
+car.cannon.addShape(backwheel.cannon, { x: 18, y: 0, z: 6 })
 
-  car.add(frontwheel);
+const body = {
+  three: new THREE.Mesh(new THREE.BoxBufferGeometry(50, 20, 15), new THREE.MeshLambertMaterial({ color: 0xa52523 })),
+  cannon: new CANNON.Box(new CANNON.Vec3(50 / 2, 20 / 2, 15 / 2))
+}
 
-  const body = new THREE.Mesh(
-    new THREE.BoxBufferGeometry(50, 20, 15),
-    new THREE.MeshLambertMaterial({ color: 0xa52523 })
-  );
+body.three.position.z = 12;
 
-  body.position.z = 12;
+car.three.add(body.three);
+car.cannon.addShape(body.cannon, { x: 0, y: 0, z: 12 })
 
-  car.add(body);
+const carFrontTexture = getCarFrontTexture();
+carFrontTexture.center = new THREE.Vector2(0.5, 0.5);
+carFrontTexture.rotation = Math.PI / 2;
 
-  const carFrontTexture = getCarFrontTexture();
-  carFrontTexture.center = new THREE.Vector2(0.5, 0.5);
-  carFrontTexture.rotation = Math.PI / 2;
+const carBackTexture = getCarFrontTexture();
+carBackTexture.center = new THREE.Vector2(0.5, 0.5);
+carBackTexture.rotation = -Math.PI / 2;
 
-  const carBackTexture = getCarFrontTexture();
-  carBackTexture.center = new THREE.Vector2(0.5, 0.5);
-  carBackTexture.rotation = -Math.PI / 2;
+const carLeftSideTexture = getCarSideTexture();
+carLeftSideTexture.flipY = false;
 
-  const carLeftSideTexture = getCarSideTexture();
-  carLeftSideTexture.flipY = false;
+const carRightSideTexture = getCarSideTexture();
 
-  const carRightSideTexture = getCarSideTexture();
+const cabin = {
+  three: new THREE.Mesh(new THREE.BoxBufferGeometry(26, 14, 20), [new THREE.MeshLambertMaterial({ map: carFrontTexture }),new THREE.MeshLambertMaterial({ map: carBackTexture }),new THREE.MeshLambertMaterial({ map: carLeftSideTexture }),new THREE.MeshLambertMaterial({ map: carRightSideTexture }),new THREE.MeshLambertMaterial({ color: 0xffffff })]),
+  cannon: new CANNON.Box(new CANNON.Vec3(26 / 2, 14 / 2, 20 / 2))
+}
 
-  const cabin = new THREE.Mesh(new THREE.BoxBufferGeometry(26, 14, 20), [
-    new THREE.MeshLambertMaterial({ map: carFrontTexture }),
-    new THREE.MeshLambertMaterial({ map: carBackTexture }),
-    new THREE.MeshLambertMaterial({ map: carLeftSideTexture }),
-    new THREE.MeshLambertMaterial({ map: carRightSideTexture }),
-    new THREE.MeshLambertMaterial({ color: 0xffffff }), // top
-    new THREE.MeshLambertMaterial({ color: 0xffffff }), // bottom
-  ]);
+cabin.three.position.z = 20;
+cabin.three.position.x = 10;
 
-  cabin.position.z = 20;
-  cabin.position.x = 10;
+car.three.add(cabin.three);
+car.cannon.addShape(cabin.cannon, { x: 10, y: 0, z: 20 })
 
-  car.add(cabin);
+scene.add(car.three);
+world.addBody(car.cannon)
 
-  return car;
-};
+// box
 
-let car = playercar();
+let box = {
+  three: new THREE.Mesh(new THREE.BoxBufferGeometry(100, 100, 100),new THREE.MeshLambertMaterial({ color: 0x333333 })),
+  cannon: new CANNON.Body({ mass: 1 , shape: new CANNON.Box(new CANNON.Vec3(100 / 2, 100 / 2, 100 / 2))})
+}
 
-scene.add(car);
+box.cannon.position.set(100, -100, 0)
 
-let box = new THREE.Mesh(
-  new THREE.BoxBufferGeometry(100, 100, 100),
-  new THREE.MeshLambertMaterial({ color: 0x333333 })
-);
-box.position.x = 100;
-box.position.y = -100;
+box.three.position.x = 100;
+box.three.position.y = -100;
 
-scene.add(box);
+scene.add(box.three);
+world.addBody(box.cannon)
 
 // lights
 
@@ -157,8 +163,8 @@ const camera = new THREE.PerspectiveCamera(
   0.1,
   1000
 );
-camera.position.set(0, 200, 300);
-camera.lookAt(car.position.x, car.position.y, car.position.z);
+camera.position.set(0, 100, 300);
+camera.lookAt(car.three.position.x, car.three.position.y, car.three.position.z);
 
 // renderer
 
@@ -183,17 +189,17 @@ window.addEventListener("resize", () => {
 
 const target = {
   car: {
-    position: car.position.clone(),
-    rotation: car.rotation.clone(),
+    position: car.three.position.clone(),
+    rotation: car.three.rotation.clone(),
   },
   camera: {
     position: camera.position.clone(),
-    rotation: car.rotation.clone(),
+    rotation: car.three.rotation.clone(),
   },
 };
 
 const stdAngleDiff = 0.1,
-  stdForward = 30;
+  stdForward = 20;
 
 let isUpKeyDown = false,
   isDownKeyDown = false,
@@ -203,15 +209,15 @@ let isUpKeyDown = false,
 window.addEventListener("keydown", (key) => {
   if (key.keyCode === 37) isRightKeyDown = true;
   else if (key.keyCode === 38) isUpKeyDown = true;
-  else if (key.keyCode === 39)  isLeftKeyDown = true;
+  else if (key.keyCode === 39) isLeftKeyDown = true;
   else if (key.keyCode === 40) isDownKeyDown = true;
 });
 
 window.addEventListener("keyup", (key) => {
   if (key.keyCode === 37) isRightKeyDown = false;
   else if (key.keyCode === 38) isUpKeyDown = false;
-  else if (key.keyCode === 39)  isLeftKeyDown = false;
-  else if (key.keyCode === 40) isDownKeyDown= false;
+  else if (key.keyCode === 39) isLeftKeyDown = false;
+  else if (key.keyCode === 40) isDownKeyDown = false;
 });
 
 const calculateMovement = () => {
@@ -236,15 +242,10 @@ const calculateMovement = () => {
   target.camera.position.x = finalPosition.x;
   target.camera.position.y = finalPosition.y + 200
 
-  /* const transition = Ease.backInOut; */
-
   camera.position.lerp(target.camera.position, 0.1)
-  car.position.lerp(target.car.position, 0.1)
-  car.rotation.z += (angle - car.rotation.z) * 0.1
+  car.three.position.lerp(target.car.position, 0.1)
+  car.three.rotation.z += (angle - car.three.rotation.z) * 0.1
 
-  /* Tween.get(camera.position).to(target.camera.position, 0.1, transition);
-  Tween.get(car.position).to(target.car.position, 0.1, transition);
-  Tween.get(car.rotation).to({ z: angle }, 0.1, transition); */
 };
 
 // zoom
