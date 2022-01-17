@@ -6,7 +6,7 @@ let scene = new THREE.Scene();
 
 //Cannon.js world
 let world = new CANNON.World();
-world.gravity.set(0, -9.807, 0)
+world.gravity.set(0, -9.807, 0);
 
 // backround
 
@@ -71,39 +71,48 @@ function getCarSideTexture() {
 
 const car = {
   three: new THREE.Group(),
-  cannon: new CANNON.Body({ mass: 1 })
-}
+  cannon: new CANNON.Body({ mass: 1 }),
+};
 const backwheel = {
-  three: new THREE.Mesh(new THREE.BoxBufferGeometry(9, 23, 12), new THREE.MeshLambertMaterial({ color: 0x333333 })),
-  cannon: new CANNON.Box(new CANNON.Vec3(9 / 2, 23 / 2, 12 / 2))
-}
+  three: new THREE.Mesh(
+    new THREE.BoxBufferGeometry(9, 23, 12),
+    new THREE.MeshLambertMaterial({ color: 0x333333 })
+  ),
+  cannon: new CANNON.Box(new CANNON.Vec3(9 / 2, 23 / 2, 12 / 2)),
+};
 
 backwheel.three.position.z = 6;
 backwheel.three.position.x = -18;
 
 car.three.add(backwheel.three);
-car.cannon.addShape(backwheel.cannon, { x: -18, y: 0, z: 6 })
+car.cannon.addShape(backwheel.cannon, { x: -18, y: 0, z: 6 });
 
 const frontwheel = {
-  three: new THREE.Mesh(new THREE.BoxBufferGeometry(9, 23, 12), new THREE.MeshLambertMaterial({ color: 0x333333 })),
-  cannon: new CANNON.Box(new CANNON.Vec3(9 / 2, 23 / 2, 12 / 2))
-}
+  three: new THREE.Mesh(
+    new THREE.BoxBufferGeometry(9, 23, 12),
+    new THREE.MeshLambertMaterial({ color: 0x333333 })
+  ),
+  cannon: new CANNON.Box(new CANNON.Vec3(9 / 2, 23 / 2, 12 / 2)),
+};
 
 frontwheel.three.position.z = 6;
 frontwheel.three.position.x = 18;
 
 car.three.add(frontwheel.three);
-car.cannon.addShape(backwheel.cannon, { x: 18, y: 0, z: 6 })
+car.cannon.addShape(backwheel.cannon, { x: 18, y: 0, z: 6 });
 
 const body = {
-  three: new THREE.Mesh(new THREE.BoxBufferGeometry(50, 20, 15), new THREE.MeshLambertMaterial({ color: 0xa52523 })),
-  cannon: new CANNON.Box(new CANNON.Vec3(50 / 2, 20 / 2, 15 / 2))
-}
+  three: new THREE.Mesh(
+    new THREE.BoxBufferGeometry(50, 20, 15),
+    new THREE.MeshLambertMaterial({ color: 0xa52523 })
+  ),
+  cannon: new CANNON.Box(new CANNON.Vec3(50 / 2, 20 / 2, 15 / 2)),
+};
 
 body.three.position.z = 12;
 
 car.three.add(body.three);
-car.cannon.addShape(body.cannon, { x: 0, y: 0, z: 12 })
+car.cannon.addShape(body.cannon, { x: 0, y: 0, z: 12 });
 
 const carFrontTexture = getCarFrontTexture();
 carFrontTexture.center = new THREE.Vector2(0.5, 0.5);
@@ -119,33 +128,45 @@ carLeftSideTexture.flipY = false;
 const carRightSideTexture = getCarSideTexture();
 
 const cabin = {
-  three: new THREE.Mesh(new THREE.BoxBufferGeometry(26, 14, 20), [new THREE.MeshLambertMaterial({ map: carFrontTexture }), new THREE.MeshLambertMaterial({ map: carBackTexture }), new THREE.MeshLambertMaterial({ map: carLeftSideTexture }), new THREE.MeshLambertMaterial({ map: carRightSideTexture }), new THREE.MeshLambertMaterial({ color: 0xffffff })]),
-  cannon: new CANNON.Box(new CANNON.Vec3(26 / 2, 14 / 2, 20 / 2))
-}
+  three: new THREE.Mesh(new THREE.BoxBufferGeometry(26, 14, 20), [
+    new THREE.MeshLambertMaterial({ map: carFrontTexture }),
+    new THREE.MeshLambertMaterial({ map: carBackTexture }),
+    new THREE.MeshLambertMaterial({ map: carLeftSideTexture }),
+    new THREE.MeshLambertMaterial({ map: carRightSideTexture }),
+    new THREE.MeshLambertMaterial({ color: 0xffffff }),
+  ]),
+  cannon: new CANNON.Box(new CANNON.Vec3(26 / 2, 14 / 2, 20 / 2)),
+};
 
 cabin.three.position.z = 20;
 cabin.three.position.x = 10;
 
 car.three.add(cabin.three);
-car.cannon.addShape(cabin.cannon, { x: 10, y: 0, z: 20 })
+car.cannon.addShape(cabin.cannon, { x: 10, y: 0, z: 20 });
 
 scene.add(car.three);
-world.addBody(car.cannon)
+world.addBody(car.cannon);
 
 // box
 
 let box = {
-  three: new THREE.Mesh(new THREE.BoxBufferGeometry(100, 100, 100), new THREE.MeshLambertMaterial({ color: 0x333333 })),
-  cannon: new CANNON.Body({ mass: 1, shape: new CANNON.Box(new CANNON.Vec3(100 / 2, 100 / 2, 100 / 2)) })
-}
+  three: new THREE.Mesh(
+    new THREE.BoxBufferGeometry(100, 100, 100),
+    new THREE.MeshLambertMaterial({ color: 0x333333 })
+  ),
+  cannon: new CANNON.Body({
+    mass: 1,
+    shape: new CANNON.Box(new CANNON.Vec3(100 / 2, 100 / 2, 100 / 2)),
+  }),
+};
 
-box.cannon.position.set(100, -100, 0)
+box.cannon.position.set(100, -100, 0);
 
 box.three.position.x = 100;
 box.three.position.y = -100;
 
 scene.add(box.three);
-world.addBody(box.cannon)
+world.addBody(box.cannon);
 
 // lights
 
@@ -186,20 +207,19 @@ window.addEventListener("resize", () => {
 });
 
 //car movement logic
-
 let lerp = (fromPosition, toPosition) => {
   fromPosition.x += (toPosition.x - fromPosition.x) * 0.1;
   fromPosition.y += (toPosition.y - fromPosition.y) * 0.1;
   /* fromPosition.z += ( toPosition.z - fromPosition.z ) * 0.1;*/
   return fromPosition;
-}
+};
 
 const target = {
   car: {
-    position: car.cannon.position.clone(),
-    rotation: car.cannon.quaternion.clone()
+    position: car.cannon.position,
+    rotation: car.cannon.quaternion,
   },
-  camera: camera.position.clone()
+  camera: camera.position.clone(),
 };
 
 const stdAngleDiff = 0.1,
@@ -210,14 +230,14 @@ let isUpKeyDown = false,
   isLeftKeyDown = false,
   isRightKeyDown = false;
 
-window.addEventListener("keydown", key => {
+window.addEventListener("keydown", (key) => {
   if (key.keyCode === 37) isRightKeyDown = true;
   else if (key.keyCode === 38) isUpKeyDown = true;
   else if (key.keyCode === 39) isLeftKeyDown = true;
   else if (key.keyCode === 40) isDownKeyDown = true;
 });
 
-window.addEventListener("keyup", key => {
+window.addEventListener("keyup", (key) => {
   if (key.keyCode === 37) isRightKeyDown = false;
   else if (key.keyCode === 38) isUpKeyDown = false;
   else if (key.keyCode === 39) isLeftKeyDown = false;
@@ -225,7 +245,8 @@ window.addEventListener("keyup", key => {
 });
 
 const calculateMovement = () => {
-  let H = 0, angleDiff = 0;
+  let H = 0,
+    angleDiff = 0;
 
   if (isUpKeyDown) H = stdForward;
   if (isDownKeyDown) H = -1 * stdForward;
@@ -240,21 +261,20 @@ const calculateMovement = () => {
   };
 
   target.camera.x = finalPosition.x;
-  target.camera.y = finalPosition.y + 200
-  camera.position.lerp(target.camera, 0.1)
+  target.camera.y = finalPosition.y + 200;
+  camera.position.lerp(target.camera, 0.1);
 
   // Editing cannon.js values
-  world.step(1 / 60)
-  car.cannon.quaternion.z += (angle - car.three.rotation.z) * 0.15
-  car.cannon.position.x = lerp(car.cannon.position, finalPosition).x
-  car.cannon.position.y = lerp(car.cannon.position, finalPosition).y
-  /* debugger */
+  world.step(1 / 60);
+  car.cannon.quaternion.z += (angle - car.three.rotation.z) * 0.15;
+  car.cannon.position.x = lerp(car.cannon.position, finalPosition).x;
+  car.cannon.position.y = lerp(car.cannon.position, finalPosition).y;
 
   // making values sync
-  car.three.quaternion.z = car.cannon.quaternion.z
-  car.three.position.x = car.cannon.position.x
-  car.three.position.y = car.cannon.position.y
-  car.three.position.z = car.cannon.position.z
+  car.three.quaternion.z = car.cannon.quaternion.z;
+  car.three.position.x = car.cannon.position.x;
+  car.three.position.y = car.cannon.position.y;
+  car.three.position.z = car.cannon.position.z;
 };
 
 // zoom
