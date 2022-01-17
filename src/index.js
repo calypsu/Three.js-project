@@ -119,7 +119,7 @@ carLeftSideTexture.flipY = false;
 const carRightSideTexture = getCarSideTexture();
 
 const cabin = {
-  three: new THREE.Mesh(new THREE.BoxBufferGeometry(26, 14, 20), [new THREE.MeshLambertMaterial({ map: carFrontTexture }),new THREE.MeshLambertMaterial({ map: carBackTexture }),new THREE.MeshLambertMaterial({ map: carLeftSideTexture }),new THREE.MeshLambertMaterial({ map: carRightSideTexture }),new THREE.MeshLambertMaterial({ color: 0xffffff })]),
+  three: new THREE.Mesh(new THREE.BoxBufferGeometry(26, 14, 20), [new THREE.MeshLambertMaterial({ map: carFrontTexture }), new THREE.MeshLambertMaterial({ map: carBackTexture }), new THREE.MeshLambertMaterial({ map: carLeftSideTexture }), new THREE.MeshLambertMaterial({ map: carRightSideTexture }), new THREE.MeshLambertMaterial({ color: 0xffffff })]),
   cannon: new CANNON.Box(new CANNON.Vec3(26 / 2, 14 / 2, 20 / 2))
 }
 
@@ -135,8 +135,8 @@ world.addBody(car.cannon)
 // box
 
 let box = {
-  three: new THREE.Mesh(new THREE.BoxBufferGeometry(100, 100, 100),new THREE.MeshLambertMaterial({ color: 0x333333 })),
-  cannon: new CANNON.Body({ mass: 1 , shape: new CANNON.Box(new CANNON.Vec3(100 / 2, 100 / 2, 100 / 2))})
+  three: new THREE.Mesh(new THREE.BoxBufferGeometry(100, 100, 100), new THREE.MeshLambertMaterial({ color: 0x333333 })),
+  cannon: new CANNON.Body({ mass: 1, shape: new CANNON.Box(new CANNON.Vec3(100 / 2, 100 / 2, 100 / 2)) })
 }
 
 box.cannon.position.set(100, -100, 0)
@@ -163,7 +163,7 @@ const camera = new THREE.PerspectiveCamera(
   0.1,
   1000
 );
-camera.position.set(0, 100, 300);
+camera.position.set(0, 200, 900);
 camera.lookAt(car.three.position.x, car.three.position.y, car.three.position.z);
 
 // renderer
@@ -186,16 +186,21 @@ window.addEventListener("resize", () => {
 });
 
 //car movement logic
+console.log(car.cannon, car.three.position.lerp)
+
+let lerp = (fromPosition, toPosition) => {
+  fromPosition.x += ( toPosition.x - fromPosition.x ) * 0.1;
+	fromPosition.y += ( toPosition.y - fromPosition.y ) * 0.1;
+  /* fromPosition.z += ( toPosition.z - fromPosition.z ) * 0.1;*/
+  return fromPosition
+}
 
 const target = {
   car: {
-    position: car.three.position.clone(),
-    rotation: car.three.rotation.clone(),
+    position: car.cannon.position.clone(),
+    rotation: car.cannon.quaternion.clone()
   },
-  camera: {
-    position: camera.position.clone(),
-    rotation: car.three.rotation.clone(),
-  },
+  camera: camera.position.clone()
 };
 
 const stdAngleDiff = 0.1,
@@ -206,14 +211,14 @@ let isUpKeyDown = false,
   isLeftKeyDown = false,
   isRightKeyDown = false;
 
-window.addEventListener("keydown", (key) => {
+window.addEventListener("keydown", key => {
   if (key.keyCode === 37) isRightKeyDown = true;
   else if (key.keyCode === 38) isUpKeyDown = true;
   else if (key.keyCode === 39) isLeftKeyDown = true;
   else if (key.keyCode === 40) isDownKeyDown = true;
 });
 
-window.addEventListener("keyup", (key) => {
+window.addEventListener("keyup", key => {
   if (key.keyCode === 37) isRightKeyDown = false;
   else if (key.keyCode === 38) isUpKeyDown = false;
   else if (key.keyCode === 39) isLeftKeyDown = false;
@@ -236,20 +241,25 @@ const calculateMovement = () => {
     y: target.car.position.y + -1 * H * Math.sin(angle),
   };
 
-  target.car.position.x = finalPosition.x;
-  target.car.position.y = finalPosition.y;
-  target.car.rotation.z = angle;
-  target.camera.position.x = finalPosition.x;
-  target.camera.position.y = finalPosition.y + 200
+  target.camera.x = finalPosition.x;
+  target.camera.y = finalPosition.y + 200
+  camera.position.lerp(target.camera, 0.1)
 
-  camera.position.lerp(target.camera.position, 0.1)
-  car.three.position.lerp(target.car.position, 0.1)
-  car.three.rotation.z += (angle - car.three.rotation.z) * 0.1
-
+  // Editing cannon.js values
+  world.step(1 / 60)
+  car.cannon.quaternion.z += (angle - car.three.rotation.z) * 0.15
+  car.cannon.position.x = lerp(car.cannon.position, finalPosition).x
+  car.cannon.position.y = lerp(car.cannon.position, finalPosition).y
+  /* debugger */
+  console.log(car.cannon.quaternion.z)
+  // making values sync
+  car.rotation.z = car.cannon.quaternion.z
+  car.three.position.x = car.cannon.position.x
+  car.three.position.y = car.cannon.position.y
+  car.three.position.z = car.cannon.position.z
 };
 
 // zoom
-
 window.addEventListener("wheel", (wheel) => {
   if (wheel.deltaY < 0) {
     camera.zoom = camera.zoom + 0.2;
