@@ -163,7 +163,7 @@ const camera = new THREE.PerspectiveCamera(
   0.1,
   1000
 );
-camera.position.set(0, 200, 900);
+camera.position.set(0, 200, 300);
 camera.lookAt(car.three.position.x, car.three.position.y, car.three.position.z);
 
 // renderer
@@ -186,13 +186,12 @@ window.addEventListener("resize", () => {
 });
 
 //car movement logic
-console.log(car.cannon, car.three.position.lerp)
 
 let lerp = (fromPosition, toPosition) => {
-  fromPosition.x += ( toPosition.x - fromPosition.x ) * 0.1;
-	fromPosition.y += ( toPosition.y - fromPosition.y ) * 0.1;
+  fromPosition.x += (toPosition.x - fromPosition.x) * 0.1;
+  fromPosition.y += (toPosition.y - fromPosition.y) * 0.1;
   /* fromPosition.z += ( toPosition.z - fromPosition.z ) * 0.1;*/
-  return fromPosition
+  return fromPosition;
 }
 
 const target = {
@@ -226,8 +225,7 @@ window.addEventListener("keyup", key => {
 });
 
 const calculateMovement = () => {
-  let H = 0,
-    angleDiff = 0;
+  let H = 0, angleDiff = 0;
 
   if (isUpKeyDown) H = stdForward;
   if (isDownKeyDown) H = -1 * stdForward;
@@ -251,9 +249,9 @@ const calculateMovement = () => {
   car.cannon.position.x = lerp(car.cannon.position, finalPosition).x
   car.cannon.position.y = lerp(car.cannon.position, finalPosition).y
   /* debugger */
-  console.log(car.cannon.quaternion.z)
+
   // making values sync
-  car.rotation.z = car.cannon.quaternion.z
+  car.three.quaternion.z = car.cannon.quaternion.z
   car.three.position.x = car.cannon.position.x
   car.three.position.y = car.cannon.position.y
   car.three.position.z = car.cannon.position.z
