@@ -113,6 +113,7 @@ const stdAngleDiff = 1,
     car: {
       position: car.cannon.position,
       quaternion: car.cannon.quaternion
+      
     },
     camera: camera.position.clone()
   },
@@ -139,11 +140,12 @@ const calculateMovement = () => {
     y: target.car.position.y + -1 * H * Math.sin(angle),
   };
 
-  /* console.log(JSON.stringify(finalPosition, null, 2)) */
+  /* console.log(JSON.stringify(target, null, 2)) */
 
+  // changing camera's position
   target.camera.x = finalPosition.x;
   target.camera.y = finalPosition.y + 200;
-  camera.position.lerp(target.camera, 0.1);
+  camera.position.lerp(target.camera , 0.1);
 
   // Editing cannon.js values
   world.step(1 / 60);
