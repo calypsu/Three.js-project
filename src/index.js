@@ -1,5 +1,7 @@
 import * as THREE from "three";
 import * as CANNON from "cannon";
+import car from './objects/car';
+import box from './objects/box';
 
 // THREE.js scene
 let scene = new THREE.Scene();
@@ -38,132 +40,10 @@ scene.background = backgroundTexture;
 
 // car
 
-function getCarFrontTexture() {
-  const canvas = document.createElement("canvas");
-  canvas.width = 64;
-  canvas.height = 32;
-  const context = canvas.getContext("2d");
-
-  context.fillStyle = "#ffffff";
-  context.fillRect(0, 0, 64, 32);
-
-  context.fillStyle = "#666666";
-  context.fillRect(8, 8, 48, 24);
-
-  return new THREE.CanvasTexture(canvas);
-}
-
-function getCarSideTexture() {
-  const canvas = document.createElement("canvas");
-  canvas.width = 128;
-  canvas.height = 32;
-  const context = canvas.getContext("2d");
-
-  context.fillStyle = "#ffffff";
-  context.fillRect(0, 0, 128, 32);
-
-  context.fillStyle = "#666666";
-  context.fillRect(10, 8, 38, 24);
-  context.fillRect(58, 8, 60, 24);
-
-  return new THREE.CanvasTexture(canvas);
-}
-
-const car = {
-  three: new THREE.Group(),
-  cannon: new CANNON.Body({ mass: 1 }),
-};
-const backwheel = {
-  three: new THREE.Mesh(
-    new THREE.BoxBufferGeometry(9, 23, 12),
-    new THREE.MeshLambertMaterial({ color: 0x333333 })
-  ),
-  cannon: new CANNON.Box(new CANNON.Vec3(9 / 2, 23 / 2, 12 / 2)),
-};
-
-backwheel.three.position.z = 6;
-backwheel.three.position.x = -18;
-
-car.three.add(backwheel.three);
-car.cannon.addShape(backwheel.cannon, { x: -18, y: 0, z: 6 });
-
-const frontwheel = {
-  three: new THREE.Mesh(
-    new THREE.BoxBufferGeometry(9, 23, 12),
-    new THREE.MeshLambertMaterial({ color: 0x333333 })
-  ),
-  cannon: new CANNON.Box(new CANNON.Vec3(9 / 2, 23 / 2, 12 / 2)),
-};
-
-frontwheel.three.position.z = 6;
-frontwheel.three.position.x = 18;
-
-car.three.add(frontwheel.three);
-car.cannon.addShape(backwheel.cannon, { x: 18, y: 0, z: 6 });
-
-const body = {
-  three: new THREE.Mesh(
-    new THREE.BoxBufferGeometry(50, 20, 15),
-    new THREE.MeshLambertMaterial({ color: 0xa52523 })
-  ),
-  cannon: new CANNON.Box(new CANNON.Vec3(50 / 2, 20 / 2, 15 / 2)),
-};
-
-body.three.position.z = 12;
-
-car.three.add(body.three);
-car.cannon.addShape(body.cannon, { x: 0, y: 0, z: 12 });
-
-const carFrontTexture = getCarFrontTexture();
-carFrontTexture.center = new THREE.Vector2(0.5, 0.5);
-carFrontTexture.rotation = Math.PI / 2;
-
-const carBackTexture = getCarFrontTexture();
-carBackTexture.center = new THREE.Vector2(0.5, 0.5);
-carBackTexture.rotation = -Math.PI / 2;
-
-const carLeftSideTexture = getCarSideTexture();
-carLeftSideTexture.flipY = false;
-
-const carRightSideTexture = getCarSideTexture();
-
-const cabin = {
-  three: new THREE.Mesh(new THREE.BoxBufferGeometry(26, 14, 20), [
-    new THREE.MeshLambertMaterial({ map: carFrontTexture }),
-    new THREE.MeshLambertMaterial({ map: carBackTexture }),
-    new THREE.MeshLambertMaterial({ map: carLeftSideTexture }),
-    new THREE.MeshLambertMaterial({ map: carRightSideTexture }),
-    new THREE.MeshLambertMaterial({ color: 0xffffff }),
-  ]),
-  cannon: new CANNON.Box(new CANNON.Vec3(26 / 2, 14 / 2, 20 / 2)),
-};
-
-cabin.three.position.z = 20;
-cabin.three.position.x = 10;
-
-car.three.add(cabin.three);
-car.cannon.addShape(cabin.cannon, { x: 10, y: 0, z: 20 });
-
 scene.add(car.three);
 world.addBody(car.cannon);
 
 // box
-
-let box = {
-  three: new THREE.Mesh(
-    new THREE.BoxBufferGeometry(100, 100, 100),
-    new THREE.MeshLambertMaterial({ color: 0x333333 })
-  ),
-  cannon: new CANNON.Body({
-    mass: 1,
-    shape: new CANNON.Box(new CANNON.Vec3(100 / 2, 100 / 2, 100 / 2)),
-  }),
-};
-
-box.cannon.position.set(100, -100, 0);
-
-box.three.position.x = 100;
-box.three.position.y = -100;
 
 scene.add(box.three);
 world.addBody(box.cannon);
@@ -207,23 +87,6 @@ window.addEventListener("resize", () => {
 });
 
 //car movement logic
-let lerp = (fromPosition, toPosition) => {
-  fromPosition.x += (toPosition.x - fromPosition.x) * 0.1;
-  fromPosition.y += (toPosition.y - fromPosition.y) * 0.1;
-  /* fromPosition.z += ( toPosition.z - fromPosition.z ) * 0.1;*/
-  return fromPosition;
-};
-
-const target = {
-  car: {
-    position: car.cannon.position,
-    rotation: car.cannon.quaternion,
-  },
-  camera: camera.position.clone(),
-};
-
-const stdAngleDiff = 0.1,
-  stdForward = 20;
 
 let isUpKeyDown = false,
   isDownKeyDown = false,
@@ -244,6 +107,22 @@ window.addEventListener("keyup", (key) => {
   else if (key.keyCode === 40) isDownKeyDown = false;
 });
 
+const stdAngleDiff = 1,
+  stdForward = 20,
+  target = {
+    car: {
+      position: car.cannon.position,
+      quaternion: car.cannon.quaternion
+    },
+    camera: camera.position.clone()
+  },
+  lerp = (fromPosition, toPosition) => {
+    fromPosition.x += (toPosition.x - fromPosition.x) * 0.1;
+    fromPosition.y += (toPosition.y - fromPosition.y) * 0.1;
+    /* fromPosition.z += ( toPosition.z - fromPosition.z ) * 0.1;*/
+    return fromPosition;
+  };
+ 
 const calculateMovement = () => {
   let H = 0,
     angleDiff = 0;
@@ -253,12 +132,14 @@ const calculateMovement = () => {
   if (isLeftKeyDown) angleDiff = stdAngleDiff;
   if (isRightKeyDown) angleDiff = -1 * stdAngleDiff;
 
-  const angle = target.car.rotation.z + angleDiff;
+  const angle = target.car.quaternion.z + angleDiff;
 
   const finalPosition = {
     x: target.car.position.x + -1 * H * Math.cos(angle),
     y: target.car.position.y + -1 * H * Math.sin(angle),
   };
+
+  /* console.log(JSON.stringify(finalPosition, null, 2)) */
 
   target.camera.x = finalPosition.x;
   target.camera.y = finalPosition.y + 200;
@@ -266,15 +147,21 @@ const calculateMovement = () => {
 
   // Editing cannon.js values
   world.step(1 / 60);
-  car.cannon.quaternion.z += (angle - car.three.rotation.z) * 0.15;
+  car.cannon.quaternion.z += (angle - car.cannon.quaternion.z) * 0.15 / 2;
   car.cannon.position.x = lerp(car.cannon.position, finalPosition).x;
   car.cannon.position.y = lerp(car.cannon.position, finalPosition).y;
 
   // making values sync
+  car.three.quaternion.w = car.cannon.quaternion.w;
+  car.three.quaternion.x = car.cannon.quaternion.x;
+  car.three.quaternion.y = car.cannon.quaternion.y;
   car.three.quaternion.z = car.cannon.quaternion.z;
   car.three.position.x = car.cannon.position.x;
   car.three.position.y = car.cannon.position.y;
   car.three.position.z = car.cannon.position.z;
+
+  /* debugger */
+
 };
 
 // zoom
