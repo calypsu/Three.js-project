@@ -107,8 +107,8 @@ window.addEventListener("keyup", key => {
   else if (key.key === "ArrowDown") isDownKeyDown = false;
 });
 
-const stdAngleDiff = 1,
-  stdForward = 40,
+const stdAngleDiff = 0.01,
+  stdForward = 20,
   target = {
     car: {
       position: { ...car.cannon.position },
@@ -117,15 +117,14 @@ const stdAngleDiff = 1,
     camera: camera.position.clone()
   }
 
-let H = 0,
-  angleDiff = 0;
+let H = 0, angleDiff = 0;
 
 const calculateMovement = () => {
 
   if (isUpKeyDown) H += stdForward;
   if (isDownKeyDown) H += -1 * stdForward;
-  if (isLeftKeyDown) angleDiff += stdAngleDiff;
-  if (isRightKeyDown) angleDiff += -1 * stdAngleDiff;
+  if (isLeftKeyDown) angleDiff += -1 * stdAngleDiff;
+  if (isRightKeyDown) angleDiff += stdAngleDiff;
 
   const angle = target.car.quaternion.z + angleDiff;
 
@@ -143,13 +142,15 @@ const calculateMovement = () => {
 
   // Editing cannon.js values
   world.step(1 / 60);
-  car.cannon.quaternion.z += (angle - car.cannon.quaternion.z) * 0.15 / 2;
+  car.cannon.quaternion.z += (angle - car.cannon.quaternion.z) * 0.5 / 2;
+  /* car.cannon.quaternion.z = angle */
   car.cannon.position.x += (finalPosition.x - car.cannon.position.x) * 0.1;
   car.cannon.position.y += (finalPosition.y - car.cannon.position.y) * 0.1;
 
   // making values sync
   car.three.quaternion.w = car.cannon.quaternion.w;
   car.three.quaternion.x = car.cannon.quaternion.x;
+  /* car.three.quaternion.x = 0.2; */
   car.three.quaternion.y = car.cannon.quaternion.y;
   car.three.quaternion.z = car.cannon.quaternion.z;
   car.three.position.x = car.cannon.position.x;
