@@ -93,45 +93,39 @@ let isUpKeyDown = false,
   isLeftKeyDown = false,
   isRightKeyDown = false;
 
-window.addEventListener("keydown", (key) => {
-  if (key.keyCode === 37) isRightKeyDown = true;
-  else if (key.keyCode === 38) isUpKeyDown = true;
-  else if (key.keyCode === 39) isLeftKeyDown = true;
-  else if (key.keyCode === 40) isDownKeyDown = true;
+window.addEventListener("keydown", key => {
+  if (key.key === "ArrowRight") isRightKeyDown = true;
+  else if (key.key === "ArrowUp") isUpKeyDown = true;
+  else if (key.key === "ArrowLeft") isLeftKeyDown = true;
+  else if (key.key === "ArrowDown") isDownKeyDown = true;
 });
 
-window.addEventListener("keyup", (key) => {
-  if (key.keyCode === 37) isRightKeyDown = false;
-  else if (key.keyCode === 38) isUpKeyDown = false;
-  else if (key.keyCode === 39) isLeftKeyDown = false;
-  else if (key.keyCode === 40) isDownKeyDown = false;
+window.addEventListener("keyup", key => {
+  if (key.key === "ArrowRight") isRightKeyDown = false;
+  else if (key.key === "ArrowUp") isUpKeyDown = false;
+  else if (key.key === "ArrowLeft") isLeftKeyDown = false;
+  else if (key.key === "ArrowDown") isDownKeyDown = false;
 });
 
 const stdAngleDiff = 1,
-  stdForward = 20,
+  stdForward = 40,
   target = {
     car: {
-      position: car.cannon.position,
-      quaternion: car.cannon.quaternion
-      
+      position: { ...car.cannon.position },
+      quaternion: { ...car.cannon.quaternion }
     },
     camera: camera.position.clone()
-  },
-  lerp = (fromPosition, toPosition) => {
-    fromPosition.x += (toPosition.x - fromPosition.x) * 0.1;
-    fromPosition.y += (toPosition.y - fromPosition.y) * 0.1;
-    /* fromPosition.z += ( toPosition.z - fromPosition.z ) * 0.1;*/
-    return fromPosition;
-  };
- 
-const calculateMovement = () => {
-  let H = 0,
-    angleDiff = 0;
+  }
 
-  if (isUpKeyDown) H = stdForward;
-  if (isDownKeyDown) H = -1 * stdForward;
-  if (isLeftKeyDown) angleDiff = stdAngleDiff;
-  if (isRightKeyDown) angleDiff = -1 * stdAngleDiff;
+let H = 0,
+  angleDiff = 0;
+
+const calculateMovement = () => {
+
+  if (isUpKeyDown) H += stdForward;
+  if (isDownKeyDown) H += -1 * stdForward;
+  if (isLeftKeyDown) angleDiff += stdAngleDiff;
+  if (isRightKeyDown) angleDiff += -1 * stdAngleDiff;
 
   const angle = target.car.quaternion.z + angleDiff;
 
@@ -145,13 +139,13 @@ const calculateMovement = () => {
   // changing camera's position
   target.camera.x = finalPosition.x;
   target.camera.y = finalPosition.y + 200;
-  camera.position.lerp(target.camera , 0.1);
+  camera.position.lerp(target.camera, 0.1);
 
   // Editing cannon.js values
   world.step(1 / 60);
   car.cannon.quaternion.z += (angle - car.cannon.quaternion.z) * 0.15 / 2;
-  car.cannon.position.x = lerp(car.cannon.position, finalPosition).x;
-  car.cannon.position.y = lerp(car.cannon.position, finalPosition).y;
+  car.cannon.position.x += (finalPosition.x - car.cannon.position.x) * 0.1;
+  car.cannon.position.y += (finalPosition.y - car.cannon.position.y) * 0.1;
 
   // making values sync
   car.three.quaternion.w = car.cannon.quaternion.w;
