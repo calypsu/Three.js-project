@@ -107,14 +107,28 @@ window.addEventListener("keyup", key => {
   else if (key.key === "ArrowDown") isDownKeyDown = false;
 });
 
-const stdAngleDiff = 0.01,
+const stdAngleDiff = 0.5,
   stdForward = 20,
   target = {
     car: {
       position: { ...car.cannon.position },
-      quaternion: { ...car.cannon.quaternion }
+      quaternion: car.three.quaternion.clone(),
+      rotation: car.three.rotation.clone(),
     },
     camera: camera.position.clone()
+  },
+  sycn = object => {
+    Object.entries(object).forEach(([key, element]) => {
+      element.three.quaternion.w = element.cannon.quaternion.w;
+      element.three.quaternion.x = element.cannon.quaternion.x;
+      element.three.quaternion.y = element.cannon.quaternion.y;
+      element.three.quaternion.z = element.cannon.quaternion.z;
+      
+      element.three.position.x = element.cannon.position.x;
+      element.three.position.y = element.cannon.position.y;
+      element.three.position.z = element.cannon.position.z;
+    })
+
   }
 
 let H = 0, angleDiff = 0;
@@ -122,40 +136,39 @@ let H = 0, angleDiff = 0;
 const calculateMovement = () => {
 
   if (isUpKeyDown) H += stdForward;
-  if (isDownKeyDown) H += -1 * stdForward;
-  if (isLeftKeyDown) angleDiff += -1 * stdAngleDiff;
+  if (isDownKeyDown) H -= stdForward;
+  if (isLeftKeyDown) angleDiff -= stdAngleDiff;
   if (isRightKeyDown) angleDiff += stdAngleDiff;
 
-  const angle = target.car.quaternion.z + angleDiff;
+  const angle = target.car.rotation.z + angleDiff;
 
   const finalPosition = {
     x: target.car.position.x + -1 * H * Math.cos(angle),
     y: target.car.position.y + -1 * H * Math.sin(angle),
   };
 
-  /* console.log(JSON.stringify(target, null, 2)) */
+  /* console.log(JSON.stringify(finalPosition, null, 2)) */
 
   // changing camera's position
   target.camera.x = finalPosition.x;
   target.camera.y = finalPosition.y + 200;
   camera.position.lerp(target.camera, 0.1);
+  console.log(`camera ${target.camera.y}, ${finalPosition.y}`)
 
   // Editing cannon.js values
   world.step(1 / 60);
-  car.cannon.quaternion.z += (angle - car.cannon.quaternion.z) * 0.5 / 2;
-  /* car.cannon.quaternion.z = angle */
+  car.cannon.quaternion.x = target.car.quaternion.setFromAxisAngle(target.car.position, angle).x
+  car.cannon.quaternion.y = target.car.quaternion.setFromAxisAngle(target.car.position, angle).y
+  car.cannon.quaternion.z = target.car.quaternion.setFromAxisAngle(target.car.position, angle).z
+
   car.cannon.position.x += (finalPosition.x - car.cannon.position.x) * 0.1;
   car.cannon.position.y += (finalPosition.y - car.cannon.position.y) * 0.1;
+  console.log(`car ${car.cannon.position.y}, ${finalPosition.y}`)
 
   // making values sync
-  car.three.quaternion.w = car.cannon.quaternion.w;
-  car.three.quaternion.x = car.cannon.quaternion.x;
-  /* car.three.quaternion.x = 0.2; */
-  car.three.quaternion.y = car.cannon.quaternion.y;
-  car.three.quaternion.z = car.cannon.quaternion.z;
-  car.three.position.x = car.cannon.position.x;
-  car.three.position.y = car.cannon.position.y;
-  car.three.position.z = car.cannon.position.z;
+  sycn({ car, box })
+
+  /* console.log(car.three.position, car.cannon.position) */
 
   /* debugger */
 
