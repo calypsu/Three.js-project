@@ -1,14 +1,15 @@
 import * as THREE from "three";
-import * as CANNON from "cannon";
+import * as CANNON from "cannon-es";
 import car from './objects/car';
-import box from './objects/box';
+import createBrick from './objects/bricks';
 
 // THREE.js scene
 let scene = new THREE.Scene();
 
 //Cannon.js world
 let world = new CANNON.World();
-world.gravity.set(0, -9.807, 0);
+/* world.gravity.set(0, 0, -9.807); */
+world.gravity.set(0, 0, -200);
 
 // backround
 
@@ -38,15 +39,32 @@ backgroundTexture.needsUpdate = true;
 
 scene.background = backgroundTexture;
 
-// car
+let background = new CANNON.Body({mass: 0, shape: new CANNON.Plane(new CANNON.Vec3(1 / 2, 1 / 2, -1 / 2))})
 
+world.addBody(background)
+
+// car
+car.three.position.z = car.three.position.z = 2
 scene.add(car.three);
 world.addBody(car.cannon);
 
-// box
+// wall
 
-scene.add(box.three);
-world.addBody(box.cannon);
+let wall = []
+
+let x = -300, y = -150, z = 0
+
+for (let i = 0; i < 10; i++) {
+  y += 21
+  for (let j = 0; j < 10; j++) {
+    z += 9
+    let brick = createBrick(x, y, z)
+    wall.push(brick)
+    scene.add(brick.three);
+    world.addBody(brick.cannon);
+  }
+  z = 0
+}
 
 // lights
 
@@ -62,7 +80,7 @@ const camera = new THREE.PerspectiveCamera(
   75,
   window.innerWidth / window.innerHeight,
   0.1,
-  1000
+  3000
 );
 camera.position.set(0, 200, 300);
 camera.lookAt(car.three.position.x, car.three.position.y, car.three.position.z);
@@ -94,10 +112,10 @@ let isUpKeyDown = false,
   isRightKeyDown = false;
 
 window.addEventListener("keydown", key => {
-  if (key.key === "ArrowRight") isRightKeyDown = true;
-  else if (key.key === "ArrowUp") isUpKeyDown = true;
-  else if (key.key === "ArrowLeft") isLeftKeyDown = true;
-  else if (key.key === "ArrowDown") isDownKeyDown = true;
+  if (key.key === "ArrowRight" && car.three.position.z <= 4) isRightKeyDown = true;
+  else if (key.key === "ArrowUp" && car.three.position.z <= 4) isUpKeyDown = true;
+  else if (key.key === "ArrowLeft" && car.three.position.z <= 4) isLeftKeyDown = true;
+  else if (key.key === "ArrowDown" && car.three.position.z <= 4) isDownKeyDown = true;
 });
 
 window.addEventListener("keyup", key => {
@@ -114,8 +132,7 @@ const stdAngleDiff = 0.05,
       position: { ...car.cannon.position },
       quaternion: car.three.quaternion.clone(),
       rotation: car.three.rotation.clone(),
-    },
-    camera: camera.position.clone()
+    }
   },
   sycn = array => {
     array.map(element => {
@@ -130,14 +147,14 @@ const stdAngleDiff = 0.05,
     })
   }
 
-let H = 0, angleDiff = 0;
-
+let H = 0, angleDiff = 0
+  console.log(car.cannon)
 const calculateMovement = () => {
 
-  if (isUpKeyDown) H += stdForward;
-  if (isDownKeyDown) H -= stdForward;
-  if (isLeftKeyDown) angleDiff -= stdAngleDiff;
-  if (isRightKeyDown) angleDiff += stdAngleDiff;
+  if (isUpKeyDown) H += stdForward
+  else if (isDownKeyDown) H -= stdForward
+  if (isLeftKeyDown) angleDiff -= stdAngleDiff
+  else if (isRightKeyDown) angleDiff += stdAngleDiff
 
   const angle = target.car.rotation.z + angleDiff;
 
@@ -149,25 +166,31 @@ const calculateMovement = () => {
   /* console.log(JSON.stringify(finalPosition, null, 2)) */
 
   // Editing cannon.js values
-  world.step(1 / 60);
+  world.step(1 / 30);
 
-  car.cannon.quaternion.z = target.car.quaternion.setFromEuler(new THREE.Euler(0, 0, angle)).z
-  car.cannon.quaternion.w = target.car.quaternion.setFromEuler(new THREE.Euler(0, 0, angle)).w
+  car.cannon.quaternion.copy(target.car.quaternion.setFromEuler(new THREE.Euler(0, 0, angle)))
 
   car.cannon.position.x += (finalPosition.x - car.cannon.position.x) * 0.1;
   car.cannon.position.y += (finalPosition.y - car.cannon.position.y) * 0.1;
-  console.log(`car ${car.cannon.position.y}, ${finalPosition.y}`)
+
+  
+/*   car.cannon.applyImpulse(new CANNON.Vec3(finalPosition.x, finalPosition.y, 0), new CANNON.Vec3().copy(car.cannon.position)) */
+
+  /* car.cannon.velocity.set(
+    finalPosition.x + car.cannon.velocity.x,
+    finalPosition.y + car.cannon.velocity.y,
+    car.cannon.velocity.z) */
+
+  /* car.cannon.applyForce(
+    {...finalPosition, z:0 },
+    {...car.cannon.position}
+  ) */
 
   // making values sync
-  sycn([car, box])
+  sycn([car, ...wall])
 
   // changing camera's position
-  target.camera.x = finalPosition.x;
-  target.camera.y = finalPosition.y + 200;
-  camera.position.lerp(target.camera, 0.1);
-  console.log(`camera ${target.camera.y}, ${finalPosition.y}`)
-
-  /* debugger */
+  camera.position.set(car.three.position.x, car.three.position.y + 200, car.three.position.z + 300)
 
 };
 

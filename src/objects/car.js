@@ -34,7 +34,7 @@ function getCarSideTexture() {
 
 const car = {
     three: new THREE.Group(),
-    cannon: new CANNON.Body({ mass: 1 }),
+    cannon: new CANNON.Body({ mass: 1496 }),
 };
 const backwheel = {
     three: new THREE.Mesh(
