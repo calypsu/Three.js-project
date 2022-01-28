@@ -39,7 +39,7 @@ backgroundTexture.needsUpdate = true;
 
 scene.background = backgroundTexture;
 
-let background = new CANNON.Body({mass: 0, shape: new CANNON.Plane(new CANNON.Vec3(1 / 2, 1 / 2, -1 / 2))})
+let background = new CANNON.Body({ mass: 0, shape: new CANNON.Plane(new CANNON.Vec3(1 / 2, 1 / 2, -1 / 2)) })
 
 world.addBody(background)
 
@@ -128,11 +128,9 @@ window.addEventListener("keyup", key => {
 const stdAngleDiff = 0.05,
   stdForward = 20,
   target = {
-    car: {
-      position: { ...car.cannon.position },
-      quaternion: car.three.quaternion.clone(),
-      rotation: car.three.rotation.clone(),
-    }
+    position: { ...car.cannon.position },
+    quaternion: car.three.quaternion.clone(),
+    rotation: car.three.rotation.clone(),
   },
   sycn = array => {
     array.map(element => {
@@ -148,7 +146,7 @@ const stdAngleDiff = 0.05,
   }
 
 let H = 0, angleDiff = 0
-  console.log(car.cannon)
+
 const calculateMovement = () => {
 
   if (isUpKeyDown) H += stdForward
@@ -156,11 +154,11 @@ const calculateMovement = () => {
   if (isLeftKeyDown) angleDiff -= stdAngleDiff
   else if (isRightKeyDown) angleDiff += stdAngleDiff
 
-  const angle = target.car.rotation.z + angleDiff;
+  const angle = target.rotation.z + angleDiff;
 
   const finalPosition = {
-    x: target.car.position.x + -1 * H * Math.cos(angle),
-    y: target.car.position.y + -1 * H * Math.sin(angle)
+    x: target.position.x + -1 * H * Math.cos(angle),
+    y: target.position.y + -1 * H * Math.sin(angle)
   };
 
   /* console.log(JSON.stringify(finalPosition, null, 2)) */
@@ -168,13 +166,13 @@ const calculateMovement = () => {
   // Editing cannon.js values
   world.step(1 / 30);
 
-  car.cannon.quaternion.copy(target.car.quaternion.setFromEuler(new THREE.Euler(0, 0, angle)))
+  car.cannon.quaternion.copy(target.quaternion.setFromEuler(new THREE.Euler(0, 0, angle)))
 
   car.cannon.position.x += (finalPosition.x - car.cannon.position.x) * 0.1;
   car.cannon.position.y += (finalPosition.y - car.cannon.position.y) * 0.1;
 
-  
-/*   car.cannon.applyImpulse(new CANNON.Vec3(finalPosition.x, finalPosition.y, 0), new CANNON.Vec3().copy(car.cannon.position)) */
+
+  /* car.cannon.applyImpulse(new CANNON.Vec3(finalPosition.z, finalPosition.y, 0), new CANNON.Vec3().copy(car.cannon.position)) */
 
   /* car.cannon.velocity.set(
     finalPosition.x + car.cannon.velocity.x,
@@ -182,9 +180,10 @@ const calculateMovement = () => {
     car.cannon.velocity.z) */
 
   /* car.cannon.applyForce(
-    {...finalPosition, z:0 },
-    {...car.cannon.position}
-  ) */
+    new CANNON.Vec3().copy({x: finalPosition.x, y: finalPosition.y, z: 0}),
+    new CANNON.Vec3().copy(car.cannon.position)
+  )
+ */
 
   // making values sync
   sycn([car, ...wall])
