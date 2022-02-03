@@ -163,7 +163,7 @@ const stdAngleDiff = 0.05,
 const calculateMovement = () => {
 
   let H = 0, angleDiff = 0
-  
+
   if (isUpKeyDown) H += stdForward
   else if (isDownKeyDown) H -= stdForward
   if (isLeftKeyDown) angleDiff -= stdAngleDiff
@@ -184,10 +184,13 @@ const calculateMovement = () => {
   console.log(H)
   console.log(JSON.stringify(finalPosition, null, 2))
 
-  car.cannon.velocity.set(
+  /* car.cannon.velocity.set(
     finalPosition.x - car.cannon.position.x,
     finalPosition.y - car.cannon.position.y,
-    car.cannon.velocity.z)
+    car.cannon.velocity.z) */
+
+    car.cannon.velocity.x += finalPosition.x - car.cannon.position.x
+    car.cannon.velocity.y += finalPosition.y - car.cannon.position.y
 
   /* car.cannon.position.x += (finalPosition.x - car.cannon.position.x) * 0.1;
   car.cannon.position.y += (finalPosition.y - car.cannon.position.y) * 0.1; */
