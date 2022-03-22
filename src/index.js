@@ -8,8 +8,7 @@ let scene = new THREE.Scene();
 
 //Cannon.js world
 const world = new CANNON.World();
-/* world.gravity.set(0, 0, -9.807); */
-world.gravity.set(0, 0, -200);
+world.gravity.set(0, 0, -9.807);
 
 // backround
 
@@ -174,26 +173,20 @@ const calculateMovement = () => {
   // Editing cannon.js values
   world.step(1 / 30);
 
-  car.cannon.quaternion.copy(target.quaternion.setFromEuler(new THREE.Euler(0, 0, angle)))
+  /* car.cannon.quaternion.copy(target.quaternion.setFromEuler(new THREE.Euler(0, 0, angle))) */
 
   const finalPosition = {
     x: target.position.x + -1 * H * Math.cos(angle),
     y: target.position.y + -1 * H * Math.sin(angle)
   };
 
-  console.log(H)
+  console.log(H, angle)
   console.log(JSON.stringify(finalPosition, null, 2))
 
-  /* car.cannon.velocity.set(
-    finalPosition.x - car.cannon.position.x,
-    finalPosition.y - car.cannon.position.y,
-    car.cannon.velocity.z) */
+  car.cannon.angularVelocity.z += angle
 
-    car.cannon.velocity.x += finalPosition.x - car.cannon.position.x
-    car.cannon.velocity.y += finalPosition.y - car.cannon.position.y
-
-  /* car.cannon.position.x += (finalPosition.x - car.cannon.position.x) * 0.1;
-  car.cannon.position.y += (finalPosition.y - car.cannon.position.y) * 0.1; */
+  car.cannon.velocity.x += finalPosition.x - car.cannon.position.x
+  car.cannon.velocity.y += finalPosition.y - car.cannon.position.y
 
   // making values sync
   sycn([car, ...wall])

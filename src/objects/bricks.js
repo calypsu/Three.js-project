@@ -4,12 +4,12 @@ import * as CANNON from "cannon-es";
 let createBrick = (x, y, z) => {
   let brick = {
     three: new THREE.Mesh(
-      new THREE.BoxBufferGeometry(10, 20, 10),
+      new THREE.BoxBufferGeometry(5, 10, 5),
       new THREE.MeshLambertMaterial({ color: "#FFFFFF" })
     ),
     cannon: new CANNON.Body({
       mass: 2,
-      shape: new CANNON.Box(new CANNON.Vec3(10 / 2, 20 / 2, 10 / 2)),
+      shape: new CANNON.Box(new CANNON.Vec3(5 / 2, 10 / 2, 5 / 2)),
     })
   };
   
