@@ -55,10 +55,10 @@ console.log(car.three)
 
 let wall = []
 
-let x = -300, y = -150, z = 0
+let x = -300, y = -110, z = 0
 
 for (let i = 0; i < 10; i++) {
-  y += 21
+  y += 13
   for (let j = 0; j < 10; j++) {
     z += 9
     let brick = createBrick(x, y, z)
@@ -143,8 +143,7 @@ const stdAngleDiff = 0.05,
   stdForward = 20,
   target = {
     position: { ...car.cannon.position },
-    quaternion: car.three.quaternion.clone(),
-    rotation: car.three.rotation.clone(),
+    rotation: car.three.rotation.clone()
   },
   sycn = array => {
     array.map(element => {
@@ -168,7 +167,7 @@ const calculateMovement = () => {
   if (isLeftKeyDown) angleDiff -= stdAngleDiff
   else if (isRightKeyDown) angleDiff += stdAngleDiff
 
-  const angle = target.rotation.z + angleDiff;
+  const angle =  car.cannon.angularVelocity.z + angleDiff;
 
   // Editing cannon.js values
   world.step(1 / 30);
@@ -176,17 +175,16 @@ const calculateMovement = () => {
   /* car.cannon.quaternion.copy(target.quaternion.setFromEuler(new THREE.Euler(0, 0, angle))) */
 
   const finalPosition = {
-    x: target.position.x + -1 * H * Math.cos(angle),
-    y: target.position.y + -1 * H * Math.sin(angle)
+    x: car.cannon.position.x + -1 * H * Math.cos(angle),
+    y: car.cannon.position.y + -1 * H * Math.sin(angle)
   };
 
-  console.log(H, angle)
   console.log(JSON.stringify(finalPosition, null, 2))
 
-  car.cannon.angularVelocity.z += angle
+  car.cannon.angularVelocity.z = angle
 
-  car.cannon.velocity.x += finalPosition.x - car.cannon.position.x
-  car.cannon.velocity.y += finalPosition.y - car.cannon.position.y
+  car.cannon.velocity.x = finalPosition.x
+  car.cannon.velocity.y = finalPosition.y
 
   // making values sync
   sycn([car, ...wall])
